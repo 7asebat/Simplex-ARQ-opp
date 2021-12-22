@@ -180,17 +180,20 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
 Event::Event()
 {
     this->error = 0;
+    this->message_id = 0;
 }
 
 void __doPacking(omnetpp::cCommBuffer *b, const Event& a)
 {
     doParsimPacking(b,a.error);
+    doParsimPacking(b,a.message_id);
     doParsimPacking(b,a.content);
 }
 
 void __doUnpacking(omnetpp::cCommBuffer *b, Event& a)
 {
     doParsimUnpacking(b,a.error);
+    doParsimUnpacking(b,a.message_id);
     doParsimUnpacking(b,a.content);
 }
 
@@ -259,7 +262,7 @@ const char *EventDescriptor::getProperty(const char *propertyname) const
 int EventDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 2+basedesc->getFieldCount() : 2;
+    return basedesc ? 3+basedesc->getFieldCount() : 3;
 }
 
 unsigned int EventDescriptor::getFieldTypeFlags(int field) const
@@ -273,8 +276,9 @@ unsigned int EventDescriptor::getFieldTypeFlags(int field) const
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
+        FD_ISEDITABLE,
     };
-    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
 }
 
 const char *EventDescriptor::getFieldName(int field) const
@@ -287,9 +291,10 @@ const char *EventDescriptor::getFieldName(int field) const
     }
     static const char *fieldNames[] = {
         "error",
+        "message_id",
         "content",
     };
-    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
+    return (field>=0 && field<3) ? fieldNames[field] : nullptr;
 }
 
 int EventDescriptor::findField(const char *fieldName) const
@@ -297,7 +302,8 @@ int EventDescriptor::findField(const char *fieldName) const
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
     if (fieldName[0]=='e' && strcmp(fieldName, "error")==0) return base+0;
-    if (fieldName[0]=='c' && strcmp(fieldName, "content")==0) return base+1;
+    if (fieldName[0]=='m' && strcmp(fieldName, "message_id")==0) return base+1;
+    if (fieldName[0]=='c' && strcmp(fieldName, "content")==0) return base+2;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -311,9 +317,10 @@ const char *EventDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "uint8_t",
+        "uint8_t",
         "string",
     };
-    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
+    return (field>=0 && field<3) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **EventDescriptor::getFieldPropertyNames(int field) const
@@ -381,7 +388,8 @@ std::string EventDescriptor::getFieldValueAsString(void *object, int field, int 
     Event *pp = (Event *)object; (void)pp;
     switch (field) {
         case 0: return ulong2string(pp->error);
-        case 1: return oppstring2string(pp->content);
+        case 1: return ulong2string(pp->message_id);
+        case 2: return oppstring2string(pp->content);
         default: return "";
     }
 }
@@ -397,7 +405,8 @@ bool EventDescriptor::setFieldValueAsString(void *object, int field, int i, cons
     Event *pp = (Event *)object; (void)pp;
     switch (field) {
         case 0: pp->error = string2ulong(value); return true;
-        case 1: pp->content = (value); return true;
+        case 1: pp->message_id = string2ulong(value); return true;
+        case 2: pp->content = (value); return true;
         default: return false;
     }
 }

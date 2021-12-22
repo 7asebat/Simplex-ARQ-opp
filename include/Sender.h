@@ -62,7 +62,7 @@ protected:
 
     // Utility
     Frame 
-    make_frame_for_message(const char* message, double sch_at);
+    make_frame_for_message(Event&, double sch_at);
 
     // LOG
     void

@@ -98,7 +98,7 @@ Sender::process_event(Event &event)
     auto error = event.error;
     if (event.error & ERROR_TYPE_LOSS)
     {
-        auto frame = make_frame_for_message(event.content.c_str(), time_now);
+        auto frame = make_frame_for_message(event, time_now);
         log_outbound_frame_with_error(frame, error);
 
         // Frame is lost
@@ -112,7 +112,7 @@ Sender::process_event(Event &event)
 
     if (event.error & ERROR_TYPE_DELAY)
     {
-        auto frame = make_frame_for_message(event.content.c_str(), time_now);
+        auto frame = make_frame_for_message(event, time_now);
         log_outbound_frame_before_delay(frame, time_now);
 
         event.error &= ~((uint8_t) ERROR_TYPE_DELAY);
@@ -123,7 +123,7 @@ Sender::process_event(Event &event)
     }
 
     // Make and log outbound frame
-    auto frame = make_frame_for_message(event.content.c_str(), time_now);
+    auto frame = make_frame_for_message(event, time_now);
 
     if (event.error & ERROR_TYPE_MODIFICATION)
     {
@@ -141,8 +141,8 @@ Sender::process_event(Event &event)
     {
         event.error = EVENT_DUPLICATE_FRAME;
 
-        // Schedule event with 50 ms delay
-        schedule_event(event, time_now + 50e-3);
+        // Schedule event with 10 ms delay
+        schedule_event(event, time_now + 10e-3);
     }
 
     log_outbound_frame_with_error(frame, error);
@@ -170,10 +170,10 @@ Sender::receive_frame(Frame frame)
 
     // Check for ack
     auto &header = frame.header;
-    if (header.message_type == Message_Type::ACK && header.message_id == frame_id_to_send)
+    if (header.message_type == Message_Type::ACK && header.message_id == frame_id_to_send + 1)
     {
         num_correct_messages++;
-        frame_id_to_send++;
+        frame_id_to_send = header.message_id;
         
         // Schedule next event with a 50ms delay
         if (frame_id_to_send < events.size())
@@ -185,8 +185,9 @@ void
 Sender::load_input()
 {
     std::ifstream input_f(input_filepath);
+    uint8_t id = 0;
 
-    for (std::string line; std::getline(input_f, line);)
+    for (std::string line; std::getline(input_f, line); id++)
     {
         auto split_at = line.find(" ");
         auto mod_str = line.substr(0, split_at);
@@ -196,6 +197,7 @@ Sender::load_input()
         Event ev{};
         ev.error = modifications;
         ev.content = content;
+        ev.message_id = id;
         events.push_back(ev);
     }
 }
@@ -247,19 +249,19 @@ Sender::log_aggregations()
 }
 
 Frame 
-Sender::make_frame_for_message(const char* message, double sch_at)
+Sender::make_frame_for_message(Event &event, double sch_at)
 {
     Frame frame{};
 
     // Add a header
-    frame.header.message_id = frame_id_to_send;
+    frame.header.message_id = event.message_id;
     frame.header.message_type = Message_Type::DATA;
     frame.header.sending_time = sch_at;
 
     // Byte stuff the message
     std::regex escape{R"((\$|/))"};
     std::string payload = "$";
-    payload += std::regex_replace(message, escape, R"(/$1)");
+    payload += std::regex_replace(event.content.c_str(), escape, R"(/$1)");
     payload += "$";
     frame.payload = payload;
 

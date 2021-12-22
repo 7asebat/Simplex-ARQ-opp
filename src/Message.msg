@@ -1,6 +1,7 @@
 struct Event
 {
     uint8_t error;
+    uint8_t message_id;
     string content;
 }
 

@@ -25,6 +25,7 @@ struct Event
 {
     Event();
     uint8_t error;
+    uint8_t message_id;
     ::omnetpp::opp_string content;
 };
 
@@ -36,7 +37,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Event& obj) { __doPac
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Event& obj) { __doUnpacking(b, obj); }
 
 /**
- * Enum generated from <tt>Message.msg:8</tt> by nedtool.
+ * Enum generated from <tt>Message.msg:9</tt> by nedtool.
  * <pre>
  * enum Message_Type
  * {
@@ -53,7 +54,7 @@ enum Message_Type {
 };
 
 /**
- * Struct generated from Message.msg:15 by nedtool.
+ * Struct generated from Message.msg:16 by nedtool.
  */
 struct Header
 {
@@ -71,7 +72,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Header& obj) { __doPa
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Header& obj) { __doUnpacking(b, obj); }
 
 /**
- * Struct generated from Message.msg:22 by nedtool.
+ * Struct generated from Message.msg:23 by nedtool.
  */
 struct Frame
 {
@@ -89,7 +90,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Frame& obj) { __doPac
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Frame& obj) { __doUnpacking(b, obj); }
 
 /**
- * Class generated from <tt>Message.msg:29</tt> by nedtool.
+ * Class generated from <tt>Message.msg:30</tt> by nedtool.
  * <pre>
  * packet Message_Event
  * {
@@ -128,7 +129,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Message_Event& obj) {
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Message_Event& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Message.msg:34</tt> by nedtool.
+ * Class generated from <tt>Message.msg:35</tt> by nedtool.
  * <pre>
  * packet Message_Frame
  * {

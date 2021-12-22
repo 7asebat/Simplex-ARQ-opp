@@ -27,7 +27,7 @@ class Receiver : public cSimpleModule
     uint8_t frame_id_to_receive;
     std::ofstream out_f;
 
-  protected:
+protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
     virtual void finish();

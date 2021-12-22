@@ -66,7 +66,7 @@ Receiver::receive_frame(Frame frame)
     if (parity_byte == 0)
     {
         Frame ack{};
-        ack.header.message_id = frame_id_to_receive;
+        ack.header.message_id = frame.header.message_id + 1;
         ack.header.message_type = Message_Type::ACK;
         ack.header.sending_time = time_now;
 
