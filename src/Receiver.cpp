@@ -76,12 +76,14 @@ Receiver::receive_frame(Frame frame)
         send(message_frame, "port$o");
 
         // Received the right frame
-        if (frame.header.message_id == frame_id_to_receive) 
+        if (frame.header.message_id == frame_id_to_receive)
             frame_id_to_receive++;
+        else
+            log_message("<discarding> Wrong frame");
     }
     else
     {
-        log_message("Parity check failed");
+        log_message("<discarding> Parity check failed");
     }
 }
 

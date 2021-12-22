@@ -96,9 +96,20 @@ Sender::process_event(Event &event)
     transmission_time = time_now;
 
     auto error = event.error;
+    auto frame = make_frame_for_message(event, time_now);
+
+    if (event.error & ERROR_TYPE_DELAY)
+    {
+        log_outbound_frame_before_delay(frame, time_now);
+
+        event.error &= ~((uint8_t) ERROR_TYPE_DELAY);
+
+        // Schedule event with pre-defined delay
+        schedule_event(event, time_now + packet_delay);
+        return;
+    }
     if (event.error & ERROR_TYPE_LOSS)
     {
-        auto frame = make_frame_for_message(event, time_now);
         log_outbound_frame_with_error(frame, error);
 
         // Frame is lost
@@ -109,22 +120,13 @@ Sender::process_event(Event &event)
         schedule_event(ack_timeout, time_now + timeout_interval);
         return;
     }
-
-    if (event.error & ERROR_TYPE_DELAY)
+    if (event.error & ERROR_TYPE_DUPLICATION)
     {
-        auto frame = make_frame_for_message(event, time_now);
-        log_outbound_frame_before_delay(frame, time_now);
+        event.error = EVENT_DUPLICATE_FRAME;
 
-        event.error &= ~((uint8_t) ERROR_TYPE_DELAY);
-
-        // Schedule event with pre-defined delay
-        schedule_event(event, time_now + packet_delay);
-        return;
+        // Schedule event with 10 ms delay
+        schedule_event(event, time_now + 10e-3);
     }
-
-    // Make and log outbound frame
-    auto frame = make_frame_for_message(event, time_now);
-
     if (event.error & ERROR_TYPE_MODIFICATION)
     {
         event.error &= ~((uint8_t) ERROR_TYPE_MODIFICATION);
@@ -136,13 +138,6 @@ Sender::process_event(Event &event)
 
         char *byte_ptr = (char *)frame.payload.c_str();
         byte_ptr[byte_loc] ^= (char) 1 << (bit_loc - byte_loc * 8);
-    }
-    if (event.error & ERROR_TYPE_DUPLICATION)
-    {
-        event.error = EVENT_DUPLICATE_FRAME;
-
-        // Schedule event with 10 ms delay
-        schedule_event(event, time_now + 10e-3);
     }
 
     log_outbound_frame_with_error(frame, error);
