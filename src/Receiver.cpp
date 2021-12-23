@@ -67,23 +67,17 @@ Receiver::frame_calculate_parity(const Frame &frame)
 void 
 Receiver::receive_frame(const Frame &frame)
 {
+    double time_now = (double)simTime().raw() / simTime().getScale();
     log_inbound_frame(frame);
 
-    double time_now = (double)simTime().raw() / simTime().getScale();
-    uint8_t parity_byte = frame_calculate_parity(frame);
+    Frame response{};
+    response.header.sending_time = time_now + 0.2;
+    response.header.message_id = frame.header.message_id;
 
     // No errors
-    if (parity_byte == 0)
+    if (frame_calculate_parity(frame) == 0)
     {
-        Frame ack{};
-        ack.header.message_id = frame.header.message_id + 1;
-        ack.header.message_type = Message_Type::ACK;
-        ack.header.sending_time = time_now + 0.2;
-
-        // Schedule ACK after 0.2s
-        auto *message_frame = new Message_Frame{};
-        message_frame->setFrame(ack);
-        scheduleAt(ack.header.sending_time, message_frame);
+        response.header.message_type = Message_Type::ACK;
 
         // Received the right frame
         if (frame.header.message_id == frame_id_to_receive)
@@ -93,8 +87,14 @@ Receiver::receive_frame(const Frame &frame)
     }
     else
     {
+        response.header.message_type = Message_Type::NACK;
         log_message("<discarding> Parity check failed");
     }
+
+    // Schedule response after 0.2s
+    auto *message = new Message_Frame{};
+    message->setFrame(response);
+    scheduleAt(response.header.sending_time, message);
 }
 
 void

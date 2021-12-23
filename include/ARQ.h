@@ -23,31 +23,29 @@ enum Error_Type : uint8_t
 inline static const char*
 error_type_to_c_str(uint8_t error)
 {
-    const int SIZE = 4;
-    static char binary_str[SIZE+1] = {};
-
-    for (int i = 0; i < SIZE; i++)
-    {
-        binary_str[SIZE-1 - i] = (error >> i) & 1 ? '1' : '0';
-    }
+    static char buf[1024];
 
     switch (error)
     {
-    case ERROR_TYPE_NONE:         return "No Errors";
-    case ERROR_TYPE_DELAY:        return "Error: Delay";
-    case ERROR_TYPE_LOSS:         return "Error: Loss";
-    case ERROR_TYPE_MODIFICATION: return "Error: Modification";
-    case ERROR_TYPE_DUPLICATION:  return "Error: Duplication";
-
+    case ERROR_TYPE_NONE:       return "No Errors";
     case EVENT_ACK_TIMEOUT:     return "Internal: Timeout";
     case EVENT_ACK:             return "Internal: ACK";
     case EVENT_NACK:            return "Internal: NACK";
     case EVENT_DUPLICATE_FRAME: return "Internal: Duplicating Frame";
 
-    default:
-        return binary_str;
+    default: strcpy(buf, "Errors:");
     }
-    return nullptr;
+
+    if (error & ERROR_TYPE_MODIFICATION)
+        strcat(buf, " Modification");
+    if (error & ERROR_TYPE_LOSS)
+        strcat(buf, " Loss");
+    if (error & ERROR_TYPE_DUPLICATION)
+        strcat(buf, " Duplication");
+    if (error & ERROR_TYPE_DELAY)
+        strcat(buf, " Delay");
+
+    return buf;
 }
 
 inline static const char *

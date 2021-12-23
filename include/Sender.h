@@ -69,7 +69,7 @@ protected:
     log_inbound_frame(const Frame&);
 
     void
-    log_outbound_frame_before_delay(const Frame&, double originally_at);
+    log_delayed_frame(const Frame&, double originally_at);
 
     void
     log_outbound_duplicate_frame(const Frame&);

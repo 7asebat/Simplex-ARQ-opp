@@ -58,8 +58,10 @@ void Sender::handleMessage(cMessage *msg)
     {
         auto frame = mes->getFrame();
         log_outbound_duplicate_frame(frame);
+        num_total_messages++;
+
         // Forward duplicate frame
-        if (!mes->getLost())
+        if (mes->getLost() == false)
         {
             auto *duplicate = new Message_Frame{};
             duplicate->setFrame(frame);
@@ -106,7 +108,7 @@ Sender::process_event(const Event &event)
     auto frame = make_frame_for_message(event, time_now);
     if (event.error & ERROR_TYPE_DELAY)
     {
-        log_outbound_frame_before_delay(frame, time_now);
+        log_delayed_frame(frame, time_now);
 
         // Schedule event with pre-defined delay
         // Keep other modifications
@@ -172,11 +174,19 @@ Sender::receive_frame(const Frame &frame)
 
     // Check for ack
     auto &header = frame.header;
-    if (header.message_type == Message_Type::ACK && header.message_id == frame_id_to_send + 1)
+    if (header.message_id == frame_id_to_send)
     {
-        num_correct_messages++;
-        frame_id_to_send = header.message_id;
-        
+        if (header.message_type == Message_Type::ACK)
+        {
+            num_correct_messages++;
+            frame_id_to_send++;
+        }
+        // Send clean frame
+        else if (header.message_type == Message_Type::NACK)
+        {
+            events[frame_id_to_send].error = ERROR_TYPE_NONE;
+        }
+
         // Schedule next event right away
         if (frame_id_to_send < events.size())
             schedule_event(events[frame_id_to_send], header.sending_time);
@@ -213,7 +223,7 @@ Sender::log_inbound_frame(const Frame& frame)
 }
 
 void
-Sender::log_outbound_frame_before_delay(const Frame &frame, double originally_at)
+Sender::log_delayed_frame(const Frame &frame, double originally_at)
 {
     log_message("<delayed> %s#%d: %s", 
                 message_type_to_c_str(frame.header.message_type), 
