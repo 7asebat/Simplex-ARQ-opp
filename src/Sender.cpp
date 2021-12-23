@@ -156,13 +156,10 @@ Sender::process_event(const Event &event)
     }
 
     // Set ACK Timeout for normal frames
-    if (event.error != EVENT_DUPLICATE_FRAME)
-    {
-        Event ack_timeout{};
-        ack_timeout.error = EVENT_ACK_TIMEOUT;
-        ack_timeout.message_id = event.message_id;
-        schedule_event(ack_timeout, time_now + timeout_interval);
-    }
+    Event ack_timeout{};
+    ack_timeout.error = EVENT_ACK_TIMEOUT;
+    ack_timeout.message_id = event.message_id;
+    schedule_event(ack_timeout, time_now + timeout_interval);
 }
 
 void

@@ -1,4 +1,4 @@
-package arq;
+package src;
 
 @license(LGPL);
 //

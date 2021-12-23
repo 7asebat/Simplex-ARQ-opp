@@ -1,0 +1,93 @@
+@0 [Sender] <init>
+@7 [Sender] <sending> DATA#0: $The violin, sometimes known as a fiddle$ !! No Errors
+@7.2 [Sender] <received> ACK#0
+@7.2 [Sender] <sending> DATA#1: $is a wooden chordophone (string instrument)$ !! Errors: Duplication
+@7.21 [Sender] <duplicate> DATA#1: $is a wooden chordophone (string instrument)$
+@7.4 [Sender] <received> ACK#1
+@7.4 [Sender] <sending> DATA#2: $in the violin family.$ !! Errors: Loss
+@7.41 [Sender] <received> ACK#1
+@14.4 [Sender] <timeout> #2
+@14.4 [Sender] <sending> DATA#2: $in the violin family.$ !! No Errors
+@0 [Receiver] <init>
+@7 [Receiver] <received> DATA#0: $The violin, sometimes known as a fiddle$
+@7.2 [Receiver] <sending> ACK#0
+@7.2 [Receiver] <received> DATA#1: $is a wooden chordophone (string instrument)$
+@7.21 [Receiver] <received> DATA#1: $is a wooden chordophone (string instrument)$
+@7.21 [Receiver] <discarding> Wrong frame
+@7.4 [Receiver] <sending> ACK#1
+@7.41 [Receiver] <sending> ACK#1
+@14.4 [Receiver] <received> DATA#2: $in the violin family.$
+@14.6 [Receiver] <sending> ACK#2
+@21.6 [Receiver] <received> DATA#3: $Most violins have a hollow wooden body.$
+@14.6 [Sender] <received> ACK#2
+@14.6 [Sender] <sending> DATA#3: $Most violins have a hollow wooden body.$ !! Errors: Loss Duplication
+@14.61 [Sender] <duplicate> DATA#3: $Most violins have a hollow wooden body.$
+@21.6 [Sender] <timeout> #3
+@21.6 [Sender] <sending> DATA#3: $Most violins have a hollow wooden body.$ !! No Errors
+@21.8 [Sender] <received> ACK#3
+@21.8 [Sender] <sending> DATA#4: $It is the smallest and thus highest-pitched instrument$ !! No Errors
+@22 [Sender] <received> ACK#4
+@22 [Sender] <sending> DATA#5: $(soprano) in the family in regular use.$ !! No Errors
+@21.8 [Receiver] <sending> ACK#3
+@21.8 [Receiver] <received> DATA#4: $It is the smallest and thus highest-pitched instrument$
+@22 [Receiver] <sending> ACK#4
+@22 [Receiver] <received> DATA#5: $(soprano) in the family in regular use.$
+@22.2 [Receiver] <sending> ACK#5
+@22.2 [Receiver] <received> DATA#6: $[a] The violin typically has four strings,$
+@22.4 [Receiver] <sending> ACK#6
+@22.4 [Receiver] <received> DATA#7: $(some can have five/$), usually tuned in perfect$
+@22.6 [Receiver] <sending> ACK#7
+@22.6 [Receiver] <received> DATA#8: $fifths with notes G3, D4, A4, E5,$
+@22.2 [Sender] <received> ACK#5
+@22.2 [Sender] <sending> DATA#6: $[a] The violin typically has four strings,$ !! No Errors
+@22.4 [Sender] <received> ACK#6
+@22.4 [Sender] <sending> DATA#7: $(some can have five/$), usually tuned in perfect$ !! No Errors
+@22.6 [Sender] <received> ACK#7
+@22.6 [Sender] <sending> DATA#8: $fifths with notes G3, D4, A4, E5,$ !! No Errors
+@22.8 [Sender] <received> ACK#8
+@22.8 [Sender] <sending> DATA#9: $and is most commonly played by drawing$ !! Errors: Loss
+@29.8 [Sender] <timeout> #9
+@29.8 [Sender] <sending> DATA#9: $and is most commonly played by drawing$ !! No Errors
+@30 [Sender] <received> ACK#9
+@30 [Sender] <sending> DATA#10: $a bow across its strings.$ !! No Errors
+@30.2 [Sender] <received> ACK#10
+@30.2 [Sender] <sending> DATA#11: $It can also be played by plucking$ !! No Errors
+@30.4 [Sender] <received> ACK#11
+@30.4 [Sender] <delayed> DATA#12: $the strings/$ with the fingers (pizzicato)$
+@37.4 [Sender] <sending> DATA#12: $the strings/$ with txe fingers (pizzicato)$ !! Errors: Modification
+@22.8 [Receiver] <sending> ACK#8
+@29.8 [Receiver] <received> DATA#9: $and is most commonly played by drawing$
+@30 [Receiver] <sending> ACK#9
+@30 [Receiver] <received> DATA#10: $a bow across its strings.$
+@30.2 [Receiver] <sending> ACK#10
+@30.2 [Receiver] <received> DATA#11: $It can also be played by plucking$
+@30.4 [Receiver] <sending> ACK#11
+@37.4 [Receiver] <received> DATA#12: $the strings/$ with txe fingers (pizzicato)$
+@37.4 [Receiver] <discarding> Parity check failed
+@37.6 [Receiver] <sending> NACK#12
+@37.6 [Sender] <received> NACK#12
+@37.6 [Sender] <sending> DATA#12: $the strings/$ with the fingers (pizzicato)$ !! No Errors
+@37.8 [Sender] <received> ACK#12
+@37.8 [Sender] <sending> DATA#13: $and, in specialized cases, by striking$ !! No Errors
+@38 [Sender] <received> ACK#13
+@38 [Sender] <sending> DATA#14: $the strings with the wooden side/$ of the bow$ !! Errors: Duplication
+@38.01 [Sender] <duplicate> DATA#14: $the strings with the wooden side/$ of the bow$
+@38.2 [Sender] <received> ACK#14
+@38.2 [Sender] <sending> DATA#15: $(col legno).$ !! No Errors
+@37.6 [Receiver] <received> DATA#12: $the strings/$ with the fingers (pizzicato)$
+@37.8 [Receiver] <sending> ACK#12
+@37.8 [Receiver] <received> DATA#13: $and, in specialized cases, by striking$
+@38 [Receiver] <sending> ACK#13
+@38 [Receiver] <received> DATA#14: $the strings with the wooden side/$ of the bow$
+@38.01 [Receiver] <received> DATA#14: $the strings with the wooden side/$ of the bow$
+@38.01 [Receiver] <discarding> Wrong frame
+@38.2 [Receiver] <sending> ACK#14
+@38.2 [Receiver] <received> DATA#15: $(col legno).$
+@38.21 [Sender] <received> ACK#14
+@38.4 [Sender] <received> ACK#15
+@45.2 [Sender] <log_aggregations> Transmission time = 31.4
+@45.2 [Sender] <log_aggregations> Total number of transmissions = 42
+@45.2 [Sender] <log_aggregations> Throughput = 0.509554
+@38.21 [Receiver] <sending> ACK#14
+@38.4 [Receiver] <sending> ACK#15
+@45.2 [Receiver] <finish>
