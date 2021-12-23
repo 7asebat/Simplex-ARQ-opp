@@ -31,8 +31,18 @@ void Receiver::handleMessage(cMessage *msg)
     if (auto mes = dynamic_cast<Message_Frame*>(msg); mes != nullptr)
     {
         auto frame = mes->getFrame();
-        receive_frame(frame);
-        delete mes;
+
+        // Scheduled ack forward
+        if (msg->isSelfMessage())
+        {
+            log_outbound_frame(frame);
+            send(mes, "port$o");
+        }
+        else
+        {
+            receive_frame(frame);
+            delete mes;
+        }
     }
 }
 
@@ -68,12 +78,12 @@ Receiver::receive_frame(const Frame &frame)
         Frame ack{};
         ack.header.message_id = frame.header.message_id + 1;
         ack.header.message_type = Message_Type::ACK;
-        ack.header.sending_time = time_now;
+        ack.header.sending_time = time_now + 0.2;
 
+        // Schedule ACK after 0.2s
         auto *message_frame = new Message_Frame{};
         message_frame->setFrame(ack);
-        log_outbound_frame(ack);
-        send(message_frame, "port$o");
+        scheduleAt(ack.header.sending_time, message_frame);
 
         // Received the right frame
         if (frame.header.message_id == frame_id_to_receive)
