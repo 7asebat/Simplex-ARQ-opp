@@ -1,40 +1,53 @@
-@0[Sender] <init>
-@7[Sender] <sending> DATA#0: $A flower, sometimes {nown as a bloom or blossom$ !! 1010
-@7.05[Sender] <sending> DATA#0: $A flower, sometimes known as a bloom or blossom$ !! Internal: Duplicating Frame
-@7.05[Sender] <received> ACK#0
-@7.1[Sender] <sending> DATA#1: $is the reproductive/$ structure found in flowering plants$ !! 0000
-@7.1[Sender] <received> ACK#1
-@7.15[Sender] <sending> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$ !! Error: Loss
-@14.15[Sender] <timeout> #2
-@0[Receiver] <init>
-@7[Receiver] <received> DATA#0: $A flower, sometimes {nown as a bloom or blossom$
-@7[Receiver] Parity check failed
-@7.05[Receiver] <received> DATA#0: $A flower, sometimes known as a bloom or blossom$
-@7.05[Receiver] <sending> ACK#0
-@7.1[Receiver] <received> DATA#1: $is the reproductive/$ structure found in flowering plants$
-@7.1[Receiver] <sending> ACK#1
-@14.15[Receiver] <received> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$
-@14.15[Receiver] <sending> ACK#2
-@14.15[Sender] <sending> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$ !! 0000
-@14.15[Sender] <received> ACK#2
-@14.2[Sender] <sending> DATA#3: $The biological function of a flower is to facilitate reproduction,$ !! 0000
-@14.2[Sender] <received> ACK#3
-@14.25[Sender] <delayed> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$
-@21.25[Sender] <sending> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$ !! 0000
-@21.25[Sender] <received> ACK#4
-@14.2[Receiver] <received> DATA#3: $The biological function of a flower is to facilitate reproduction,$
-@14.2[Receiver] <sending> ACK#3
-@21.25[Receiver] <received> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$
-@21.25[Receiver] <sending> ACK#4
-@21.3[Receiver] <received> DATA#5: $Flowers may facilitate outcrossing/$$
-@21.3[Receiver] <sending> ACK#5
-@21.35[Receiver] <received> DATA#6: $(fusion of sperm and eggs from different individuals in a population)$
-@21.35[Receiver] <sending> ACK#6
-@21.3[Sender] <sending> DATA#5: $Flowers may facilitate outcrossing/$$ !! 0000
-@21.3[Sender] <received> ACK#5
-@21.35[Sender] <sending> DATA#6: $(fusion of sperm and eggs from different individuals in a population)$ !! 0000
-@21.35[Sender] <received> ACK#6
-@28.35[Sender] <log_aggregations> Transmission time = 21.35
-@28.35[Sender] <log_aggregations> Total number of transmissions = 17
-@28.35[Sender] <log_aggregations> Throughput = 0
-@28.35[Receiver] <finish>
+@0 [Sender] <init>
+@7 [Sender] <sending> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$ !! Error: Duplication
+@7 [Sender] <received> ACK#1
+@7 [Sender] <sending> DATA#1: $is a natural light display in Earth's sky,$ !! No Errors
+@7 [Sender] <received> ACK#2
+@7 [Sender] <sending> DATA#2: $predominantly seen in high-latitude regions$ !! Error: Duplication
+@7 [Sender] <received> ACK#3
+@7 [Sender] <sending> DATA#3: $(around the Arctic//0and Antarctic).$ !! 1010
+@7.01 [Sender] <sending> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$ !! Internal: Duplicating Frame
+@0 [Receiver] <init>
+@7 [Receiver] <received> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$
+@7 [Receiver] <sending> ACK#1
+@7 [Receiver] <received> DATA#1: $is a natural light display in Earth's sky,$
+@7 [Receiver] <sending> ACK#2
+@7 [Receiver] <received> DATA#2: $predominantly seen in high-latitude regions$
+@7 [Receiver] <sending> ACK#3
+@7 [Receiver] <received> DATA#3: $(around the Arctic//0and Antarctic).$
+@7 [Receiver] <discarding> Parity check failed
+@7.01 [Receiver] <received> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$
+@7.01 [Sender] <sending> DATA#2: $predominantly seen in high-latitude regions$ !! Internal: Duplicating Frame
+@7.01 [Sender] <sending> DATA#3: $(around the Arctic// and Antarctic).$ !! Internal: Duplicating Frame
+@7.01 [Sender] <received> ACK#1
+@7.01 [Sender] <received> ACK#3
+@7.01 [Sender] <received> ACK#4
+@7.01 [Sender] <sending> DATA#4: $Auroras display dynamic patterns of brilliant lights//$ !! No Errors
+@7.01 [Sender] <received> ACK#5
+@7.01 [Sender] <sending> DATA#5: $that appear as curtains,$ !! No Errors
+@7.01 [Receiver] <sending> ACK#1
+@7.01 [Receiver] <discarding> Wrong frame
+@7.01 [Receiver] <received> DATA#2: $predominantly seen in high-latitude regions$
+@7.01 [Receiver] <sending> ACK#3
+@7.01 [Receiver] <discarding> Wrong frame
+@7.01 [Receiver] <received> DATA#3: $(around the Arctic// and Antarctic).$
+@7.01 [Receiver] <sending> ACK#4
+@7.01 [Receiver] <received> DATA#4: $Auroras display dynamic patterns of brilliant lights//$
+@7.01 [Receiver] <sending> ACK#5
+@7.01 [Receiver] <received> DATA#5: $that appear as curtains,$
+@7.01 [Sender] <received> ACK#6
+@7.01 [Sender] <sending> DATA#6: $rays, spirals/$$ !! No Errors
+@7.01 [Sender] <received> ACK#7
+@7.01 [Sender] <sending> DATA#7: $or dùnamic flickers covering the entire sky/$$ !! 1100
+@14.01 [Sender] <timeout> #7
+@14.01 [Sender] <sending> DATA#7: $or dynamic flickers covering the entire sky/$$ !! No Errors
+@14.01 [Sender] <received> ACK#8
+@21.01 [Sender] <log_aggregations> Transmission time = 7.01
+@21.01 [Sender] <log_aggregations> Total number of transmissions = 22
+@21.01 [Sender] <log_aggregations> Throughput = 1.14123
+@7.01 [Receiver] <sending> ACK#6
+@7.01 [Receiver] <received> DATA#6: $rays, spirals/$$
+@7.01 [Receiver] <sending> ACK#7
+@14.01 [Receiver] <received> DATA#7: $or dynamic flickers covering the entire sky/$$
+@14.01 [Receiver] <sending> ACK#8
+@21.01 [Receiver] <finish>

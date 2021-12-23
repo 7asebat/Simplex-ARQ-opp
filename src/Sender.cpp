@@ -164,9 +164,9 @@ Sender::receive_frame(const Frame &frame)
         num_correct_messages++;
         frame_id_to_send = header.message_id;
         
-        // Schedule next event with a 50ms delay
+        // Schedule next event right away
         if (frame_id_to_send < events.size())
-            schedule_event(events[frame_id_to_send], header.sending_time + 50e-3);
+            schedule_event(events[frame_id_to_send], header.sending_time);
     }
 }
 
