@@ -93,5 +93,4 @@ protected:
         EV_INFO << buffer;
         out_f << buffer;
     }
-
 };

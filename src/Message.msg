@@ -35,3 +35,9 @@ packet Message_Frame
 {
     Frame frame;
 }
+
+packet Message_Duplicate_Frame
+{
+    Frame frame;
+    bool lost;
+}

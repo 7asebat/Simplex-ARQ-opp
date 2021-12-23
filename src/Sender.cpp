@@ -54,6 +54,19 @@ void Sender::handleMessage(cMessage *msg)
         receive_frame(frame);
         delete mes;
     }
+    else if (auto mes = dynamic_cast<Message_Duplicate_Frame*>(msg); mes != nullptr)
+    {
+        auto frame = mes->getFrame();
+        log_outbound_duplicate_frame(frame);
+        // Forward duplicate frame
+        if (!mes->getLost())
+        {
+            auto *duplicate = new Message_Frame{};
+            duplicate->setFrame(frame);
+            send(duplicate, "port$o");
+        }
+        delete mes;
+    }
 }
 
 void
@@ -103,16 +116,6 @@ Sender::process_event(const Event &event)
         return;
     }
 
-
-    if (event.error & ERROR_TYPE_DUPLICATION)
-    {
-        // Schedule duplicate frame, with no errors
-        // after a short delay (0.01s)
-        Event duplicate = event;
-        duplicate.error = EVENT_DUPLICATE_FRAME;
-        schedule_event(duplicate, time_now + 10e-3);
-    }
-
     if (event.error & ERROR_TYPE_MODIFICATION)
     {
         // Modify random bit
@@ -127,6 +130,16 @@ Sender::process_event(const Event &event)
         byte_ptr[byte_loc] ^= (char)1 << bit_loc;
     }
 
+    if (event.error & ERROR_TYPE_DUPLICATION)
+    {
+        // Schedule duplicate frame
+        // after a short delay (0.01s)
+        auto *message = new Message_Duplicate_Frame{};
+        message->setFrame(frame);
+        message->setLost(event.error & ERROR_TYPE_LOSS);
+        scheduleAt(time_now + 10e-3, message);
+    }
+
     // Send and log message, Update transmission time
     log_outbound_frame_with_error(frame, event.error);
     num_total_messages++;
@@ -135,9 +148,9 @@ Sender::process_event(const Event &event)
     // Send only if the frame isn't lost
     if ((event.error & ERROR_TYPE_LOSS) == 0)
     {
-        auto *message_frame = new Message_Frame{};
-        message_frame->setFrame(frame);
-        send(message_frame, "port$o");
+        auto *message = new Message_Frame{};
+        message->setFrame(frame);
+        send(message, "port$o");
     }
 
     // Set ACK Timeout for normal frames

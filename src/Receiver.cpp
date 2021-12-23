@@ -32,8 +32,8 @@ void Receiver::handleMessage(cMessage *msg)
     {
         auto frame = mes->getFrame();
 
-        // Scheduled ack forward
-        if (msg->isSelfMessage())
+        // Forward scheduled ack
+        if (mes->isSelfMessage())
         {
             log_outbound_frame(frame);
             send(mes, "port$o");

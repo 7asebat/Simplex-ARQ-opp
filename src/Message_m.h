@@ -167,6 +167,49 @@ class Message_Frame : public ::omnetpp::cPacket
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const Message_Frame& obj) {obj.parsimPack(b);}
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Message_Frame& obj) {obj.parsimUnpack(b);}
 
+/**
+ * Class generated from <tt>Message.msg:40</tt> by nedtool.
+ * <pre>
+ * packet Message_Duplicate_Frame
+ * {
+ *     Frame frame;
+ *     bool lost;
+ * }
+ * </pre>
+ */
+class Message_Duplicate_Frame : public ::omnetpp::cPacket
+{
+  protected:
+    Frame frame;
+    bool lost;
+
+  private:
+    void copy(const Message_Duplicate_Frame& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const Message_Duplicate_Frame&);
+
+  public:
+    Message_Duplicate_Frame(const char *name=nullptr, short kind=0);
+    Message_Duplicate_Frame(const Message_Duplicate_Frame& other);
+    virtual ~Message_Duplicate_Frame();
+    Message_Duplicate_Frame& operator=(const Message_Duplicate_Frame& other);
+    virtual Message_Duplicate_Frame *dup() const override {return new Message_Duplicate_Frame(*this);}
+    virtual void parsimPack(omnetpp::cCommBuffer *b) const override;
+    virtual void parsimUnpack(omnetpp::cCommBuffer *b) override;
+
+    // field getter/setter methods
+    virtual Frame& getFrame();
+    virtual const Frame& getFrame() const {return const_cast<Message_Duplicate_Frame*>(this)->getFrame();}
+    virtual void setFrame(const Frame& frame);
+    virtual bool getLost() const;
+    virtual void setLost(bool lost);
+};
+
+inline void doParsimPacking(omnetpp::cCommBuffer *b, const Message_Duplicate_Frame& obj) {obj.parsimPack(b);}
+inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Message_Duplicate_Frame& obj) {obj.parsimUnpack(b);}
+
 
 #endif // ifndef __MESSAGE_M_H
 

@@ -1536,4 +1536,304 @@ void *Message_FrameDescriptor::getFieldStructValuePointer(void *object, int fiel
     }
 }
 
+Register_Class(Message_Duplicate_Frame)
+
+Message_Duplicate_Frame::Message_Duplicate_Frame(const char *name, short kind) : ::omnetpp::cPacket(name,kind)
+{
+    this->lost = false;
+}
+
+Message_Duplicate_Frame::Message_Duplicate_Frame(const Message_Duplicate_Frame& other) : ::omnetpp::cPacket(other)
+{
+    copy(other);
+}
+
+Message_Duplicate_Frame::~Message_Duplicate_Frame()
+{
+}
+
+Message_Duplicate_Frame& Message_Duplicate_Frame::operator=(const Message_Duplicate_Frame& other)
+{
+    if (this==&other) return *this;
+    ::omnetpp::cPacket::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void Message_Duplicate_Frame::copy(const Message_Duplicate_Frame& other)
+{
+    this->frame = other.frame;
+    this->lost = other.lost;
+}
+
+void Message_Duplicate_Frame::parsimPack(omnetpp::cCommBuffer *b) const
+{
+    ::omnetpp::cPacket::parsimPack(b);
+    doParsimPacking(b,this->frame);
+    doParsimPacking(b,this->lost);
+}
+
+void Message_Duplicate_Frame::parsimUnpack(omnetpp::cCommBuffer *b)
+{
+    ::omnetpp::cPacket::parsimUnpack(b);
+    doParsimUnpacking(b,this->frame);
+    doParsimUnpacking(b,this->lost);
+}
+
+Frame& Message_Duplicate_Frame::getFrame()
+{
+    return this->frame;
+}
+
+void Message_Duplicate_Frame::setFrame(const Frame& frame)
+{
+    this->frame = frame;
+}
+
+bool Message_Duplicate_Frame::getLost() const
+{
+    return this->lost;
+}
+
+void Message_Duplicate_Frame::setLost(bool lost)
+{
+    this->lost = lost;
+}
+
+class Message_Duplicate_FrameDescriptor : public omnetpp::cClassDescriptor
+{
+  private:
+    mutable const char **propertynames;
+  public:
+    Message_Duplicate_FrameDescriptor();
+    virtual ~Message_Duplicate_FrameDescriptor();
+
+    virtual bool doesSupport(omnetpp::cObject *obj) const override;
+    virtual const char **getPropertyNames() const override;
+    virtual const char *getProperty(const char *propertyname) const override;
+    virtual int getFieldCount() const override;
+    virtual const char *getFieldName(int field) const override;
+    virtual int findField(const char *fieldName) const override;
+    virtual unsigned int getFieldTypeFlags(int field) const override;
+    virtual const char *getFieldTypeString(int field) const override;
+    virtual const char **getFieldPropertyNames(int field) const override;
+    virtual const char *getFieldProperty(int field, const char *propertyname) const override;
+    virtual int getFieldArraySize(void *object, int field) const override;
+
+    virtual const char *getFieldDynamicTypeString(void *object, int field, int i) const override;
+    virtual std::string getFieldValueAsString(void *object, int field, int i) const override;
+    virtual bool setFieldValueAsString(void *object, int field, int i, const char *value) const override;
+
+    virtual const char *getFieldStructName(int field) const override;
+    virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
+};
+
+Register_ClassDescriptor(Message_Duplicate_FrameDescriptor)
+
+Message_Duplicate_FrameDescriptor::Message_Duplicate_FrameDescriptor() : omnetpp::cClassDescriptor("Message_Duplicate_Frame", "omnetpp::cPacket")
+{
+    propertynames = nullptr;
+}
+
+Message_Duplicate_FrameDescriptor::~Message_Duplicate_FrameDescriptor()
+{
+    delete[] propertynames;
+}
+
+bool Message_Duplicate_FrameDescriptor::doesSupport(omnetpp::cObject *obj) const
+{
+    return dynamic_cast<Message_Duplicate_Frame *>(obj)!=nullptr;
+}
+
+const char **Message_Duplicate_FrameDescriptor::getPropertyNames() const
+{
+    if (!propertynames) {
+        static const char *names[] = {  nullptr };
+        omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+        const char **basenames = basedesc ? basedesc->getPropertyNames() : nullptr;
+        propertynames = mergeLists(basenames, names);
+    }
+    return propertynames;
+}
+
+const char *Message_Duplicate_FrameDescriptor::getProperty(const char *propertyname) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : nullptr;
+}
+
+int Message_Duplicate_FrameDescriptor::getFieldCount() const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 2+basedesc->getFieldCount() : 2;
+}
+
+unsigned int Message_Duplicate_FrameDescriptor::getFieldTypeFlags(int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldTypeFlags(field);
+        field -= basedesc->getFieldCount();
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISCOMPOUND,
+        FD_ISEDITABLE,
+    };
+    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
+}
+
+const char *Message_Duplicate_FrameDescriptor::getFieldName(int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldName(field);
+        field -= basedesc->getFieldCount();
+    }
+    static const char *fieldNames[] = {
+        "frame",
+        "lost",
+    };
+    return (field>=0 && field<2) ? fieldNames[field] : nullptr;
+}
+
+int Message_Duplicate_FrameDescriptor::findField(const char *fieldName) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount() : 0;
+    if (fieldName[0]=='f' && strcmp(fieldName, "frame")==0) return base+0;
+    if (fieldName[0]=='l' && strcmp(fieldName, "lost")==0) return base+1;
+    return basedesc ? basedesc->findField(fieldName) : -1;
+}
+
+const char *Message_Duplicate_FrameDescriptor::getFieldTypeString(int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldTypeString(field);
+        field -= basedesc->getFieldCount();
+    }
+    static const char *fieldTypeStrings[] = {
+        "Frame",
+        "bool",
+    };
+    return (field>=0 && field<2) ? fieldTypeStrings[field] : nullptr;
+}
+
+const char **Message_Duplicate_FrameDescriptor::getFieldPropertyNames(int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldPropertyNames(field);
+        field -= basedesc->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+const char *Message_Duplicate_FrameDescriptor::getFieldProperty(int field, const char *propertyname) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldProperty(field, propertyname);
+        field -= basedesc->getFieldCount();
+    }
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+int Message_Duplicate_FrameDescriptor::getFieldArraySize(void *object, int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldArraySize(object, field);
+        field -= basedesc->getFieldCount();
+    }
+    Message_Duplicate_Frame *pp = (Message_Duplicate_Frame *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+const char *Message_Duplicate_FrameDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldDynamicTypeString(object,field,i);
+        field -= basedesc->getFieldCount();
+    }
+    Message_Duplicate_Frame *pp = (Message_Duplicate_Frame *)object; (void)pp;
+    switch (field) {
+        default: return nullptr;
+    }
+}
+
+std::string Message_Duplicate_FrameDescriptor::getFieldValueAsString(void *object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldValueAsString(object,field,i);
+        field -= basedesc->getFieldCount();
+    }
+    Message_Duplicate_Frame *pp = (Message_Duplicate_Frame *)object; (void)pp;
+    switch (field) {
+        case 0: {std::stringstream out; out << pp->getFrame(); return out.str();}
+        case 1: return bool2string(pp->getLost());
+        default: return "";
+    }
+}
+
+bool Message_Duplicate_FrameDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->setFieldValueAsString(object,field,i,value);
+        field -= basedesc->getFieldCount();
+    }
+    Message_Duplicate_Frame *pp = (Message_Duplicate_Frame *)object; (void)pp;
+    switch (field) {
+        case 1: pp->setLost(string2bool(value)); return true;
+        default: return false;
+    }
+}
+
+const char *Message_Duplicate_FrameDescriptor::getFieldStructName(int field) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldStructName(field);
+        field -= basedesc->getFieldCount();
+    }
+    switch (field) {
+        case 0: return omnetpp::opp_typename(typeid(Frame));
+        default: return nullptr;
+    };
+}
+
+void *Message_Duplicate_FrameDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+{
+    omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount())
+            return basedesc->getFieldStructValuePointer(object, field, i);
+        field -= basedesc->getFieldCount();
+    }
+    Message_Duplicate_Frame *pp = (Message_Duplicate_Frame *)object; (void)pp;
+    switch (field) {
+        case 0: return (void *)(&pp->getFrame()); break;
+        default: return nullptr;
+    }
+}
+
 
