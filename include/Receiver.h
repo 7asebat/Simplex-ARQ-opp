@@ -33,16 +33,16 @@ protected:
     virtual void finish();
 
     uint8_t
-    frame_calculate_parity(Frame);
+    frame_calculate_parity(const Frame&);
 
     void
-    receive_frame(Frame);
+    receive_frame(const Frame&);
 
     void
-    log_inbound_frame(Frame);
+    log_inbound_frame(const Frame&);
 
     void
-    log_outbound_frame(Frame);
+    log_outbound_frame(const Frame&);
 
     template <typename ...Args>
     inline void
@@ -50,7 +50,7 @@ protected:
     {
         double time_now = (double)simTime().raw() / simTime().getScale();
         char buffer[1024];
-        sprintf(buffer, "@%g[Receiver] ", time_now);
+        sprintf(buffer, "@%g [Receiver] ", time_now);
         sprintf(buffer + strlen(buffer), fmt, args...);
         sprintf(buffer + strlen(buffer), "\n");
 

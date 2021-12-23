@@ -64,7 +64,7 @@ Sender::finish()
 }
 
 void
-Sender::schedule_event(Event event, double sch_at)
+Sender::schedule_event(const Event &event, double sch_at)
 {
     auto *message = new Message_Event{};
     message->setEvent(event);
@@ -72,18 +72,17 @@ Sender::schedule_event(Event event, double sch_at)
 }
 
 void
-Sender::process_event(Event &event)
+Sender::process_event(const Event &event)
 {
     double time_now = (double)simTime().raw() / simTime().getScale();
 
     // Self timeout
     if (event.error == EVENT_ACK_TIMEOUT)
     {
-        auto frame_id = std::stoi(event.content.c_str());
         // No ACK was received
-        if (frame_id == frame_id_to_send)
+        if (event.message_id == frame_id_to_send)
         {
-            // Reschedule event
+            // Reschedule event with no errors
             events[frame_id_to_send].error = ERROR_TYPE_NONE;
             log_message("<timeout> #%d", frame_id_to_send);
             process_event(events[frame_id_to_send]);
@@ -91,76 +90,71 @@ Sender::process_event(Event &event)
         return;
     }
 
-    // Normal message
-    num_total_messages++;
-    transmission_time = time_now;
-
-    auto error = event.error;
     auto frame = make_frame_for_message(event, time_now);
-
     if (event.error & ERROR_TYPE_DELAY)
     {
         log_outbound_frame_before_delay(frame, time_now);
 
-        event.error &= ~((uint8_t) ERROR_TYPE_DELAY);
-
         // Schedule event with pre-defined delay
-        schedule_event(event, time_now + packet_delay);
+        // Keep other modifications
+        Event delayed = event;
+        delayed.error ^= ERROR_TYPE_DELAY;
+        schedule_event(delayed, time_now + packet_delay);
         return;
     }
-    if (event.error & ERROR_TYPE_LOSS)
-    {
-        log_outbound_frame_with_error(frame, error);
 
-        // Frame is lost
-        // Set ACK Timeout
-        Event ack_timeout{};
-        ack_timeout.error = EVENT_ACK_TIMEOUT;
-        ack_timeout.content = std::to_string(frame_id_to_send);
-        schedule_event(ack_timeout, time_now + timeout_interval);
-        return;
-    }
+
     if (event.error & ERROR_TYPE_DUPLICATION)
     {
-        event.error = EVENT_DUPLICATE_FRAME;
-
-        // Schedule event with 10 ms delay
-        schedule_event(event, time_now + 10e-3);
+        // Schedule duplicate frame, with no errors
+        // after a short delay (0.01s)
+        Event duplicate = event;
+        duplicate.error = EVENT_DUPLICATE_FRAME;
+        schedule_event(duplicate, time_now + 10e-3);
     }
+
     if (event.error & ERROR_TYPE_MODIFICATION)
     {
-        event.error &= ~((uint8_t) ERROR_TYPE_MODIFICATION);
-
         // Modify random bit
-        const int n_bits = 8 * strlen(frame.payload.c_str());
+        const int BITS_PER_BYTE = 8;
+        const int n_bits = strlen(frame.payload.c_str()) * BITS_PER_BYTE;
+
         int bit_loc = intuniform(0, n_bits - 1);
-        int byte_loc = bit_loc / 8;
+        int byte_loc = bit_loc / BITS_PER_BYTE;
+        bit_loc %= BITS_PER_BYTE;
 
         char *byte_ptr = (char *)frame.payload.c_str();
-        byte_ptr[byte_loc] ^= (char) 1 << (bit_loc - byte_loc * 8);
+        byte_ptr[byte_loc] ^= (char)1 << bit_loc;
     }
 
-    log_outbound_frame_with_error(frame, error);
-    auto *message_frame = new Message_Frame{};
-    message_frame->setFrame(frame);
-    send(message_frame, "port$o");
+    // Send and log message, Update transmission time
+    log_outbound_frame_with_error(frame, event.error);
+    num_total_messages++;
+    transmission_time = time_now;
+
+    // Send only if the frame isn't lost
+    if ((event.error & ERROR_TYPE_LOSS) == 0)
+    {
+        auto *message_frame = new Message_Frame{};
+        message_frame->setFrame(frame);
+        send(message_frame, "port$o");
+    }
 
     // Set ACK Timeout for normal frames
-    if (error != EVENT_DUPLICATE_FRAME)
+    if (event.error != EVENT_DUPLICATE_FRAME)
     {
         Event ack_timeout{};
         ack_timeout.error = EVENT_ACK_TIMEOUT;
-        ack_timeout.content = std::to_string(frame_id_to_send);
+        ack_timeout.message_id = event.message_id;
         schedule_event(ack_timeout, time_now + timeout_interval);
     }
 }
 
 void
-Sender::receive_frame(Frame frame)
+Sender::receive_frame(const Frame &frame)
 {
     log_inbound_frame(frame);
     num_total_messages++;
-
     transmission_time = frame.header.sending_time;
 
     // Check for ack
@@ -198,7 +192,7 @@ Sender::load_input()
 }
 
 void
-Sender::log_inbound_frame(Frame& frame)
+Sender::log_inbound_frame(const Frame& frame)
 {
     log_message("<received> %s#%d", 
                 message_type_to_c_str(frame.header.message_type), 
@@ -206,7 +200,7 @@ Sender::log_inbound_frame(Frame& frame)
 }
 
 void
-Sender::log_outbound_frame_before_delay(Frame &frame, double originally_at)
+Sender::log_outbound_frame_before_delay(const Frame &frame, double originally_at)
 {
     log_message("<delayed> %s#%d: %s", 
                 message_type_to_c_str(frame.header.message_type), 
@@ -215,7 +209,7 @@ Sender::log_outbound_frame_before_delay(Frame &frame, double originally_at)
 }
 
 void
-Sender::log_outbound_duplicate_frame(Frame& frame)
+Sender::log_outbound_duplicate_frame(const Frame& frame)
 {
     log_message("<duplicate> %s#%d: %s", 
                 message_type_to_c_str(frame.header.message_type), 
@@ -224,7 +218,7 @@ Sender::log_outbound_duplicate_frame(Frame& frame)
 }
 
 void
-Sender::log_outbound_frame_with_error(Frame& frame, uint8_t error)
+Sender::log_outbound_frame_with_error(const Frame& frame, uint8_t error)
 {
     log_message("<sending> %s#%d: %s !! %s", 
                 message_type_to_c_str(frame.header.message_type), 
@@ -236,15 +230,16 @@ Sender::log_outbound_frame_with_error(Frame& frame, uint8_t error)
 void
 Sender::log_aggregations()
 {
+    transmission_time -= start_time;
     log_message("<log_aggregations> Transmission time = %g", transmission_time);
     log_message("<log_aggregations> Total number of transmissions = %d", num_total_messages);
 
-    double throughput = 0.f;
+    double throughput = num_correct_messages / transmission_time;
     log_message("<log_aggregations> Throughput = %g", throughput);
 }
 
 Frame 
-Sender::make_frame_for_message(Event &event, double sch_at)
+Sender::make_frame_for_message(const Event &event, double sch_at)
 {
     Frame frame{};
 

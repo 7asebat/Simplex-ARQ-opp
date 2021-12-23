@@ -51,31 +51,31 @@ protected:
 
     // SCHEDULE
     void
-    schedule_event(Event, double sch_at);
+    schedule_event(const Event&, double sch_at);
 
     // RECEIVE
     void
-    process_event(Event&);
+    process_event(const Event&);
 
     void
-    receive_frame(Frame);
+    receive_frame(const Frame&);
 
     // Utility
     Frame 
-    make_frame_for_message(Event&, double sch_at);
+    make_frame_for_message(const Event&, double sch_at);
 
     // LOG
     void
-    log_inbound_frame(Frame&);
+    log_inbound_frame(const Frame&);
 
     void
-    log_outbound_frame_before_delay(Frame&, double originally_at);
+    log_outbound_frame_before_delay(const Frame&, double originally_at);
 
     void
-    log_outbound_duplicate_frame(Frame&);
+    log_outbound_duplicate_frame(const Frame&);
 
     void
-    log_outbound_frame_with_error(Frame&, uint8_t error);
+    log_outbound_frame_with_error(const Frame&, uint8_t error);
 
     void
     log_aggregations();
@@ -86,7 +86,7 @@ protected:
     {
         double time_now = (double)simTime().raw() / simTime().getScale();
         char buffer[1024];
-        sprintf(buffer, "@%g[Sender] ", time_now);
+        sprintf(buffer, "@%g [Sender] ", time_now);
         sprintf(buffer + strlen(buffer), fmt, args...);
         sprintf(buffer + strlen(buffer), "\n");
 

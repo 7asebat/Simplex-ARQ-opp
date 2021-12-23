@@ -43,7 +43,7 @@ void Receiver::finish()
 }
 
 uint8_t 
-Receiver::frame_calculate_parity(Frame frame)
+Receiver::frame_calculate_parity(const Frame &frame)
 {
     uint8_t parity = frame.trailer;
     std::string payload = frame.payload.c_str();
@@ -55,7 +55,7 @@ Receiver::frame_calculate_parity(Frame frame)
 }
 
 void 
-Receiver::receive_frame(Frame frame)
+Receiver::receive_frame(const Frame &frame)
 {
     log_inbound_frame(frame);
 
@@ -88,7 +88,7 @@ Receiver::receive_frame(Frame frame)
 }
 
 void
-Receiver::log_inbound_frame(Frame frame)
+Receiver::log_inbound_frame(const Frame &frame)
 {
     log_message("<received> %s#%d: %s", 
                 message_type_to_c_str(frame.header.message_type), 
@@ -97,7 +97,7 @@ Receiver::log_inbound_frame(Frame frame)
 }
 
 void
-Receiver::log_outbound_frame(Frame frame)
+Receiver::log_outbound_frame(const Frame &frame)
 {
     log_message("<sending> %s#%d", 
                 message_type_to_c_str(frame.header.message_type), 
