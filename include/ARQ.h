@@ -174,8 +174,7 @@ namespace Hamming
 			for (size_t i = 0; i < N_DATA; i++)
 			{
 				// Multiply normally
-				Codeword product(DECODER_MATRIX[i] & codeword);
-				byte[i] = product.count();
+				byte[i] = DECODER_MATRIX[i] & codeword;
 			}
 
 			message += static_cast<char>(byte.to_ulong());

@@ -92,7 +92,7 @@ Receiver::receive_frame(const Frame &frame)
 
 		if (error_at != 0)
 		{
-			log_message("<error> Corrected error at (byte, bit) = (%u)", error_at - 1);
+			log_message("<error> Corrected error at byte #%u", error_at - 1);
 		}
 	}
 	else
