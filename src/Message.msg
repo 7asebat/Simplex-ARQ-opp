@@ -1,3 +1,9 @@
+cplusplus {{
+    #include <ARQ.h>
+}}
+
+class noncobject Payload;
+
 struct Event
 {
     uint8_t error;
@@ -22,7 +28,7 @@ struct Header
 struct Frame
 {
     Header header;
-    string payload;
+    Payload payload;
 	uint8_t trailer;
 }
 

@@ -31,13 +31,15 @@ void Sender::initialize()
     packet_delay = par("packet_delay").doubleValue();
     input_filepath = par("input_filepath").stringValue();
 
-    auto output_filepath = getParentModule()->par("output_filepath").stringValue();
-    out_f.open(output_filepath, out_f.out | out_f.app);
+	use_hamming = getParentModule()->par("use_hamming").boolValue();
 
-    load_input();
-    schedule_event(events[frame_id_to_send], start_time);
+	auto output_filepath = getParentModule()->par("output_filepath").stringValue();
+	out_f.open(output_filepath, out_f.out | out_f.app);
 
-    log_message("<init>");
+	load_input();
+	schedule_event(events[frame_id_to_send], start_time);
+
+	log_message("<init> Errors are handled by (%s)", use_hamming ? "Hamming Code" : "Parity Byte");
 }
 
 void Sender::handleMessage(cMessage *msg)
@@ -105,61 +107,64 @@ Sender::process_event(const Event &event)
         return;
     }
 
-    auto frame = make_frame_for_message(event, time_now);
-    if (event.error & ERROR_TYPE_DELAY)
-    {
-        log_delayed_frame(frame, time_now);
+	// Send and log message, Update transmission time
+	auto frame = make_frame_for_message(event, time_now);
+	log_outbound_frame_with_error(frame, event.error);
+	num_total_messages++;
+	transmission_time = time_now;
 
-        // Schedule event with pre-defined delay
-        // Keep other modifications
-        Event delayed = event;
-        delayed.error ^= ERROR_TYPE_DELAY;
-        schedule_event(delayed, time_now + packet_delay);
-        return;
-    }
+	if (event.error & ERROR_TYPE_DELAY)
+	{
+		log_delayed_frame(frame, time_now);
 
-    if (event.error & ERROR_TYPE_MODIFICATION)
-    {
-        // Modify random bit
-        const int BITS_PER_BYTE = 8;
-        const int n_bits = strlen(frame.payload.c_str()) * BITS_PER_BYTE;
+		// Schedule event with pre-defined delay
+		// Keep other modifications
+		Event delayed = event;
+		delayed.error ^= ERROR_TYPE_DELAY;
+		schedule_event(delayed, time_now + packet_delay);
+		return;
+	}
+	if (event.error & ERROR_TYPE_MODIFICATION)
+	{
+		modify_random_bit(frame.payload);
+	}
+	if (event.error & ERROR_TYPE_DUPLICATION)
+	{
+		// Schedule duplicate frame
+		// after a short delay (0.01s)
+		auto *message = new Message_Duplicate_Frame{};
+		message->setFrame(frame);
+		message->setLost(event.error & ERROR_TYPE_LOSS);
+		scheduleAt(time_now + 10e-3, message);
+	}
 
-        int bit_loc = intuniform(0, n_bits - 1);
-        int byte_loc = bit_loc / BITS_PER_BYTE;
-        bit_loc %= BITS_PER_BYTE;
+	// Send only if the frame isn't lost
+	if ((event.error & ERROR_TYPE_LOSS) == 0)
+	{
+		auto *message = new Message_Frame{};
+		message->setFrame(frame);
+		send(message, "port$o");
+	}
 
-        char *byte_ptr = (char *)frame.payload.c_str();
-        byte_ptr[byte_loc] ^= (char)1 << bit_loc;
-    }
+	// Set ACK Timeout for normal frames
+	Event ack_timeout{};
+	ack_timeout.error	   = EVENT_ACK_TIMEOUT;
+	ack_timeout.message_id = event.message_id;
+	schedule_event(ack_timeout, time_now + timeout_interval);
+}
 
-    if (event.error & ERROR_TYPE_DUPLICATION)
-    {
-        // Schedule duplicate frame
-        // after a short delay (0.01s)
-        auto *message = new Message_Duplicate_Frame{};
-        message->setFrame(frame);
-        message->setLost(event.error & ERROR_TYPE_LOSS);
-        scheduleAt(time_now + 10e-3, message);
-    }
+void
+Sender::modify_random_bit(Payload &payload)
+{
+	int bit_to_flip;
+	if (use_hamming)
+		bit_to_flip = intuniform(0, Hamming::N_CODEWORD - 1);
+	else
+		bit_to_flip = intuniform(0, Hamming::N_DATA - 1);
 
-    // Send and log message, Update transmission time
-    log_outbound_frame_with_error(frame, event.error);
-    num_total_messages++;
-    transmission_time = time_now;
+	int byte_to_flip = intuniform(0, payload.size() - 1);
 
-    // Send only if the frame isn't lost
-    if ((event.error & ERROR_TYPE_LOSS) == 0)
-    {
-        auto *message = new Message_Frame{};
-        message->setFrame(frame);
-        send(message, "port$o");
-    }
-
-    // Set ACK Timeout for normal frames
-    Event ack_timeout{};
-    ack_timeout.error = EVENT_ACK_TIMEOUT;
-    ack_timeout.message_id = event.message_id;
-    schedule_event(ack_timeout, time_now + timeout_interval);
+	payload[byte_to_flip][bit_to_flip] = !payload[byte_to_flip][bit_to_flip];
 }
 
 void
@@ -222,29 +227,32 @@ Sender::log_inbound_frame(const Frame& frame)
 void
 Sender::log_delayed_frame(const Frame &frame, double originally_at)
 {
-    log_message("<delayed> %s#%d: %s", 
-                message_type_to_c_str(frame.header.message_type), 
-                frame.header.message_id,
-                frame.payload.c_str());
+	auto content = use_hamming ? Hamming::decode_payload(frame.payload) : payload_to_string(frame.payload);
+	log_message("<delayed> %s#%d: %s",
+				message_type_to_c_str(frame.header.message_type),
+				frame.header.message_id,
+				content.c_str());
 }
 
 void
 Sender::log_outbound_duplicate_frame(const Frame& frame)
 {
-    log_message("<duplicate> %s#%d: %s", 
-                message_type_to_c_str(frame.header.message_type), 
-                frame.header.message_id,
-                frame.payload.c_str());
+	auto content = use_hamming ? Hamming::decode_payload(frame.payload) : payload_to_string(frame.payload);
+	log_message("<duplicate> %s#%d: %s",
+				message_type_to_c_str(frame.header.message_type),
+				frame.header.message_id,
+				content.c_str());
 }
 
 void
 Sender::log_outbound_frame_with_error(const Frame& frame, uint8_t error)
 {
-    log_message("<sending> %s#%d: %s !! %s", 
-                message_type_to_c_str(frame.header.message_type), 
-                frame.header.message_id, 
-                frame.payload.c_str(),
-                error_type_to_c_str(error));
+	auto content = use_hamming ? Hamming::decode_payload(frame.payload) : payload_to_string(frame.payload);
+	log_message("<sending> %s#%d: %s !! %s",
+				message_type_to_c_str(frame.header.message_type),
+				frame.header.message_id,
+				content.c_str(),
+				error_type_to_c_str(error));
 }
 
 void
@@ -273,12 +281,19 @@ Sender::make_frame_for_message(const Event &event, double sch_at)
     std::string payload = "$";
     payload += std::regex_replace(event.content.c_str(), escape, R"(/$1)");
     payload += "$";
-    frame.payload = payload;
 
-    // Calculate parity
-    frame.trailer = 0;
-    for (uint8_t byte: payload)
-        frame.trailer ^= byte;
+	if (use_hamming)
+		frame.payload = Hamming::encode_payload(payload);
+	else
+	{
+		for (auto byte : payload)
+			frame.payload.emplace_back(byte);
+	}
 
-    return frame;
+	// Calculate parity
+	frame.trailer = 0;
+	for (uint8_t byte : payload)
+		frame.trailer ^= byte;
+
+	return frame;
 }

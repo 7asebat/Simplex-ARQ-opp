@@ -42,7 +42,10 @@ protected:
     uint8_t frame_id_to_send;
     std::vector<Event> events;
 
-    virtual void initialize();
+	// Error detection
+	bool use_hamming;
+
+	virtual void initialize();
     virtual void handleMessage(cMessage *msg);
     virtual void finish();
 
@@ -57,24 +60,27 @@ protected:
     void
     process_event(const Event&);
 
-    void
-    receive_frame(const Frame&);
+	void
+	modify_random_bit(Payload &);
 
-    // Utility
-    Frame 
+	void
+	receive_frame(const Frame &);
+
+	// Utility
+	Frame 
     make_frame_for_message(const Event&, double sch_at);
 
-    // LOG
-    void
-    log_inbound_frame(const Frame&);
+	// LOG
+	void
+	log_inbound_frame(const Frame &);
 
-    void
-    log_delayed_frame(const Frame&, double originally_at);
+	void
+	log_delayed_frame(const Frame &, double originally_at);
 
-    void
-    log_outbound_duplicate_frame(const Frame&);
+	void
+	log_outbound_duplicate_frame(const Frame &);
 
-    void
+	void
     log_outbound_frame_with_error(const Frame&, uint8_t error);
 
     void

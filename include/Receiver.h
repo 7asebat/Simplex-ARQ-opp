@@ -27,6 +27,9 @@ class Receiver : public cSimpleModule
     uint8_t frame_id_to_receive;
     std::ofstream out_f;
 
+	// Error detection
+	bool use_hamming;
+
 protected:
     virtual void initialize();
     virtual void handleMessage(cMessage *msg);
@@ -38,10 +41,10 @@ protected:
     void
     receive_frame(const Frame&);
 
-    void
-    log_inbound_frame(const Frame&);
+	void
+	log_inbound_frame(const Frame &, size_t *error_at = nullptr);
 
-    void
+	void
     log_outbound_frame(const Frame&);
 
     template <typename ...Args>

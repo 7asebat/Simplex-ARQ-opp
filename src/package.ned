@@ -8,6 +8,7 @@ network Network
 {
     parameters:
         string output_filepath = default("output0.txt");
+        bool use_hamming       = default(false);
 
     submodules:
         sender: Sender {

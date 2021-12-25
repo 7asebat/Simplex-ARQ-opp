@@ -18,8 +18,12 @@
 
 
 
+// cplusplus {{
+    #include <ARQ.h>
+// }}
+
 /**
- * Struct generated from Message.msg:2 by nedtool.
+ * Struct generated from Message.msg:8 by nedtool.
  */
 struct Event
 {
@@ -37,7 +41,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Event& obj) { __doPac
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Event& obj) { __doUnpacking(b, obj); }
 
 /**
- * Enum generated from <tt>Message.msg:9</tt> by nedtool.
+ * Enum generated from <tt>Message.msg:15</tt> by nedtool.
  * <pre>
  * enum Message_Type
  * {
@@ -54,7 +58,7 @@ enum Message_Type {
 };
 
 /**
- * Struct generated from Message.msg:16 by nedtool.
+ * Struct generated from Message.msg:22 by nedtool.
  */
 struct Header
 {
@@ -72,13 +76,13 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Header& obj) { __doPa
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Header& obj) { __doUnpacking(b, obj); }
 
 /**
- * Struct generated from Message.msg:23 by nedtool.
+ * Struct generated from Message.msg:29 by nedtool.
  */
 struct Frame
 {
     Frame();
     Header header;
-    ::omnetpp::opp_string payload;
+    Payload payload;
     uint8_t trailer;
 };
 
@@ -90,7 +94,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Frame& obj) { __doPac
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Frame& obj) { __doUnpacking(b, obj); }
 
 /**
- * Class generated from <tt>Message.msg:30</tt> by nedtool.
+ * Class generated from <tt>Message.msg:36</tt> by nedtool.
  * <pre>
  * packet Message_Event
  * {
@@ -129,7 +133,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Message_Event& obj) {
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Message_Event& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Message.msg:35</tt> by nedtool.
+ * Class generated from <tt>Message.msg:41</tt> by nedtool.
  * <pre>
  * packet Message_Frame
  * {
@@ -168,7 +172,7 @@ inline void doParsimPacking(omnetpp::cCommBuffer *b, const Message_Frame& obj) {
 inline void doParsimUnpacking(omnetpp::cCommBuffer *b, Message_Frame& obj) {obj.parsimUnpack(b);}
 
 /**
- * Class generated from <tt>Message.msg:40</tt> by nedtool.
+ * Class generated from <tt>Message.msg:46</tt> by nedtool.
  * <pre>
  * packet Message_Duplicate_Frame
  * {

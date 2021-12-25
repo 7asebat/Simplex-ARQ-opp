@@ -812,7 +812,7 @@ unsigned int FrameDescriptor::getFieldTypeFlags(int field) const
     }
     static unsigned int fieldTypeFlags[] = {
         FD_ISCOMPOUND,
-        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
         FD_ISEDITABLE,
     };
     return (field>=0 && field<3) ? fieldTypeFlags[field] : 0;
@@ -854,7 +854,7 @@ const char *FrameDescriptor::getFieldTypeString(int field) const
     }
     static const char *fieldTypeStrings[] = {
         "Header",
-        "string",
+        "Payload",
         "uint8_t",
     };
     return (field>=0 && field<3) ? fieldTypeStrings[field] : nullptr;
@@ -925,7 +925,7 @@ std::string FrameDescriptor::getFieldValueAsString(void *object, int field, int 
     Frame *pp = (Frame *)object; (void)pp;
     switch (field) {
         case 0: {std::stringstream out; out << pp->header; return out.str();}
-        case 1: return oppstring2string(pp->payload);
+        case 1: {std::stringstream out; out << pp->payload; return out.str();}
         case 2: return ulong2string(pp->trailer);
         default: return "";
     }
@@ -941,7 +941,6 @@ bool FrameDescriptor::setFieldValueAsString(void *object, int field, int i, cons
     }
     Frame *pp = (Frame *)object; (void)pp;
     switch (field) {
-        case 1: pp->payload = (value); return true;
         case 2: pp->trailer = string2ulong(value); return true;
         default: return false;
     }
@@ -957,6 +956,7 @@ const char *FrameDescriptor::getFieldStructName(int field) const
     }
     switch (field) {
         case 0: return omnetpp::opp_typename(typeid(Header));
+        case 1: return omnetpp::opp_typename(typeid(Payload));
         default: return nullptr;
     };
 }
@@ -972,6 +972,7 @@ void *FrameDescriptor::getFieldStructValuePointer(void *object, int field, int i
     Frame *pp = (Frame *)object; (void)pp;
     switch (field) {
         case 0: return (void *)(&pp->header); break;
+        case 1: return (void *)(&pp->payload); break;
         default: return nullptr;
     }
 }

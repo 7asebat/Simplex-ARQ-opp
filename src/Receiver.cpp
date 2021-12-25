@@ -21,9 +21,12 @@ void Receiver::initialize()
 {
     frame_id_to_receive = 0;
 
-    auto output_filepath = getParentModule()->par("output_filepath").stringValue();
-    out_f.open(output_filepath, out_f.out | out_f.app);
-    log_message("<init>");
+	use_hamming = getParentModule()->par("use_hamming").boolValue();
+
+	auto output_filepath = getParentModule()->par("output_filepath").stringValue();
+	out_f.open(output_filepath, out_f.out | out_f.app);
+
+	log_message("<init> Errors are handled by (%s)", use_hamming ? "Hamming Code" : "Parity Byte");
 }
 
 void Receiver::handleMessage(cMessage *msg)
@@ -56,54 +59,76 @@ uint8_t
 Receiver::frame_calculate_parity(const Frame &frame)
 {
     uint8_t parity = frame.trailer;
-    std::string payload = frame.payload.c_str();
+	auto content   = use_hamming ? Hamming::decode_payload(frame.payload) : payload_to_string(frame.payload);
 
-    for (uint8_t byte : payload)
-        parity ^= byte;
+	for (uint8_t byte : content)
+		parity ^= byte;
 
-    return parity;
+	return parity;
 }
 
 void 
 Receiver::receive_frame(const Frame &frame)
 {
     double time_now = (double)simTime().raw() / simTime().getScale();
-    log_inbound_frame(frame);
 
-    Frame response{};
-    response.header.sending_time = time_now + 0.2;
-    response.header.message_id = frame.header.message_id;
+	// Hamming Code error
+	size_t error_at = 0;
+	log_inbound_frame(frame, &error_at);
 
-    // No errors
-    if (frame_calculate_parity(frame) == 0)
-    {
-        response.header.message_type = Message_Type::ACK;
+	Frame response{};
+	response.header.sending_time = time_now + 0.2;
+	response.header.message_id	 = frame.header.message_id;
 
-        // Received the right frame
-        if (frame.header.message_id == frame_id_to_receive)
-            frame_id_to_receive++;
-        else
-            log_message("<discarding> Wrong frame");
-    }
-    else
-    {
-        response.header.message_type = Message_Type::NACK;
-        log_message("<discarding> Parity check failed");
-    }
+	if (use_hamming)
+	{
+		response.header.message_type = Message_Type::ACK;
 
-    // Schedule response after 0.2s
-    auto *message = new Message_Frame{};
-    message->setFrame(response);
-    scheduleAt(response.header.sending_time, message);
+		// Received the right frame
+		if (frame.header.message_id == frame_id_to_receive)
+			frame_id_to_receive++;
+		else
+			log_message("<discarding> Wrong frame");
+
+		if (error_at != 0)
+		{
+			log_message("<error> Corrected error at (byte, bit) = (%u)", error_at - 1);
+		}
+	}
+	else
+	{
+		// No errors
+		if (frame_calculate_parity(frame) == 0)
+		{
+			response.header.message_type = Message_Type::ACK;
+
+			// Received the right frame
+			if (frame.header.message_id == frame_id_to_receive)
+				frame_id_to_receive++;
+			else
+				log_message("<discarding> Wrong frame");
+		}
+		else
+		{
+			response.header.message_type = Message_Type::NACK;
+			log_message("<discarding> Parity check failed");
+		}
+	}
+
+	// Schedule response after 0.2s
+	auto *message = new Message_Frame{};
+	message->setFrame(response);
+	scheduleAt(response.header.sending_time, message);
 }
 
 void
-Receiver::log_inbound_frame(const Frame &frame)
+Receiver::log_inbound_frame(const Frame &frame, size_t *error_at)
 {
-    log_message("<received> %s#%d: %s", 
-                message_type_to_c_str(frame.header.message_type), 
-                frame.header.message_id,
-                frame.payload.c_str());
+	auto content = use_hamming ? Hamming::decode_payload(frame.payload, error_at) : payload_to_string(frame.payload);
+	log_message("<received> %s#%d: %s",
+				message_type_to_c_str(frame.header.message_type),
+				frame.header.message_id,
+				content.c_str());
 }
 
 void
