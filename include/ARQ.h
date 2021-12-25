@@ -87,6 +87,83 @@ payload_to_string(const Payload &payload)
 
 namespace Hamming
 {
+	/**
+     * Here we use linear algebra to evaluate the parity functions for each codeword.
+     * Using the [7, 4] Hamming code as an example:
+     * 
+     * Message = 	[M3] < most significant bit
+     *				[M2]
+     *				[M1] 
+     *				[M0]
+     * P0 = M3 ^ M1 ^ M0
+     * P1 = M3 ^ M2 ^ M0
+     * P2 = M3 ^ M2 ^ M1
+     * 
+     * -> The codeword needed is
+     * Codeword = 	[P0]
+     *     		 	[P1]
+     *     		 	[M0]
+     *     		 	[P2]
+     *     		 	[M1]
+     *     		 	[M2]
+     *     		 	[M3] < most significant bit
+     * 
+     * -> So we use a Generator Matrix
+     * G = [ 1 0 1 1 ] P0
+     *     [ 1 1 0 1 ] P1
+     *     [ 0 0 0 1 ] M0
+     *     [ 1 1 1 0 ] P2
+     *     [ 0 0 1 0 ] M1
+     *     [ 0 1 0 0 ] M2
+     *     [ 1 0 0 0 ] M3
+     *       ^ most significant bit in each row
+     * 
+     * -> And calculate the codeword as 
+     * Codeword = (G * Message) & 1
+     * -> This is equivalent to replacing the (+) in the matrix multiplication with (xor)
+     * 
+     * -> Then we need to calculate the parity equations at the receiver side
+     * Syndrome = [S0]
+     *            [S1]
+     *            [S2] < most significant bit
+     * S0 = M3 ^ M1 ^ M0 ^ P0
+     * S1 = M3 ^ M2 ^ M0 ^ P1
+     * S2 = M3 ^ M2 ^ M1 ^ P2
+     * 
+     * -> Using a Parity Check Matrix, and reversing the codeword
+     * H = [ 1 0 1 0 1 0 1 ] S0
+     *     [ 1 1 0 0 1 1 0 ] S1
+     *     [ 1 1 1 1 0 0 0 ] S2
+     *       ^ most significant bit in each row
+     * Codeword = 	[M3] < most significant bit
+     *     		 	[M2]
+     *     		 	[M1]
+     *     		 	[P2]
+     *     		 	[M0]
+     *     		 	[P1]
+     *     		 	[P0]
+     * -> The reverse is done to align the most significant bits together
+     * 
+     * -> And calculate the syndrome vector, and use it to determine the error's position
+     * Syndrome = (H * Codeword) & 1
+     * 
+     * -> And a simple decoder matrix to extract the message bits
+     * G = [ 0 0 0 0 1 0 0 ] M0
+     *     [ 0 0 1 0 0 0 0 ] M1
+     *     [ 0 1 0 0 0 0 0 ] M2
+     *     [ 1 0 0 0 0 0 0 ] M3
+     * Codeword = 	[M3] < most significant bit
+     *     		 	[M2]
+     *     		 	[M1]
+     *     		 	[P2]
+     *     		 	[M0]
+     *     		 	[P1]
+     *     		 	[P0]
+     * 
+     * -> Decode the message as
+     * Message = G * Codeword
+     */
+
 	inline static constexpr uint8_t GENERATOR_MATRIX[N_CODEWORD] = {
 		0b01011011, // P0
 		0b01101101, // P1
