@@ -88,36 +88,36 @@ payload_to_string(const Payload &payload)
 namespace Hamming
 {
 	inline static constexpr uint8_t GENERATOR_MATRIX[N_CODEWORD] = {
-		0b11011010, // P0
-		0b10110110, // P1
-		0x80 >> 0,	// M0
-		0b01110001, // P2
-		0x80 >> 1,	// M1
-		0x80 >> 2,	// M2
-		0x80 >> 3,	// M3
-		0b00001111, // P3
-		0x80 >> 4,	// M4
-		0x80 >> 5,	// M5
-		0x80 >> 6,	// M6
-		0x80 >> 7,	// M7
+		0b01011011, // P0
+		0b01101101, // P1
+		1 << 0,		// M0
+		0b10001110, // P2
+		1 << 1,		// M1
+		1 << 2,		// M2
+		1 << 3,		// M3
+		0b11110000, // P3
+		1 << 4,		// M4
+		1 << 5,		// M5
+		1 << 6,		// M6
+		1 << 7,		// M7
 	};
 
 	inline static constexpr uint16_t PARITY_MATRIX[N_SYNDROME] = {
-		0b101010101010, // P0
+		0b010101010101, // P0
 		0b011001100110, // P1
-		0b000111100001, // P2
-		0b000000001111, // P2
+		0b100001111000, // P2
+		0b111110000000, // P3
 	};
 
 	inline static constexpr uint16_t DECODER_MATRIX[N_DATA] = {
-		0x800 >> 2,	 // M0
-		0x800 >> 4,	 // M1
-		0x800 >> 5,	 // M2
-		0x800 >> 6,	 // M3
-		0x800 >> 8,	 // M4
-		0x800 >> 9,	 // M5
-		0x800 >> 10, // M6
-		0x800 >> 11, // M7
+		1 << 2,	 // M0
+		1 << 4,	 // M1
+		1 << 5,	 // M2
+		1 << 6,	 // M3
+		1 << 8,	 // M4
+		1 << 9,	 // M5
+		1 << 10, // M6
+		1 << 11, // M7
 	};
 
 	inline static Payload
@@ -129,7 +129,6 @@ namespace Hamming
 		for (size_t c = 0; c < content.size(); c++)
 		{
 			auto byte = *(content.c_str() + c);
-
 			// For each bit in the resulting codeword
 			Codeword codeword{};
 			for (size_t i = 0; i < N_CODEWORD; i++)
@@ -138,6 +137,7 @@ namespace Hamming
 				Data product(GENERATOR_MATRIX[i] & byte);
 				codeword[i] = product.count() & 1;
 			}
+			payload.push_back(codeword);
 		}
 		return payload;
 	}
@@ -163,16 +163,11 @@ namespace Hamming
 
 			// Find and correct the error
 			auto syn_result = syn.to_ulong();
-			if (syn.to_ulong() != 0)
+			if (error_at != nullptr && syn_result != 0)
 			{
-				auto _codeword		  = payload[cw];
-				_codeword[syn_result] = !_codeword[syn_result];
-				codeword			  = _codeword.to_ulong() & 0xFFFF;
-			}
-
-			// 0 means no errors
-			if (error_at != nullptr)
+				codeword ^= 1 << (syn_result - 1);
 				*error_at = cw + 1;
+			}
 
 			// For each bit in the resulting data byte
 			Data byte{};

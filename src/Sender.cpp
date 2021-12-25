@@ -109,9 +109,6 @@ Sender::process_event(const Event &event)
 
 	// Send and log message, Update transmission time
 	auto frame = make_frame_for_message(event, time_now);
-	log_outbound_frame_with_error(frame, event.error);
-	num_total_messages++;
-	transmission_time = time_now;
 
 	if (event.error & ERROR_TYPE_DELAY)
 	{
@@ -137,6 +134,10 @@ Sender::process_event(const Event &event)
 		message->setLost(event.error & ERROR_TYPE_LOSS);
 		scheduleAt(time_now + 10e-3, message);
 	}
+
+	log_outbound_frame_with_error(frame, event.error);
+	num_total_messages++;
+	transmission_time = time_now;
 
 	// Send only if the frame isn't lost
 	if ((event.error & ERROR_TYPE_LOSS) == 0)
