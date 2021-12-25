@@ -1,0 +1,59 @@
+@0 [Sender] <init> Errors are handled by (Hamming Code)
+@7 [Sender] <sending> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$ !! Errors: Duplication
+@7.01 [Sender] <duplicate> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$
+@7.2 [Sender] <received> ACK#0
+@7.2 [Sender] <sending> DATA#1: $is a natural light display in Earth's sky,$ !! No Errors
+@7.21 [Sender] <received> ACK#0
+@7.4 [Sender] <received> ACK#1
+@7.4 [Sender] <sending> DATA#2: $predominantly seen in high-latitude regions$ !! Errors: Duplication
+@0 [Receiver] <init> Errors are handled by (Hamming Code)
+@7 [Receiver] <received> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$
+@7.01 [Receiver] <received> DATA#0: $/$An aurora, also known as the polar lights/$ or aurora polaris,$
+@7.01 [Receiver] <discarding> Wrong frame
+@7.2 [Receiver] <sending> ACK#0
+@7.2 [Receiver] <received> DATA#1: $is a natural light display in Earth's sky,$
+@7.21 [Receiver] <sending> ACK#0
+@7.4 [Receiver] <sending> ACK#1
+@7.4 [Receiver] <received> DATA#2: $predominantly seen in high-latitude regions$
+@7.41 [Receiver] <received> DATA#2: $predominantly seen in high-latitude regions$
+@7.41 [Receiver] <discarding> Wrong frame
+@7.6 [Receiver] <sending> ACK#2
+@7.6 [Receiver] <received> DATA#3: $(around the Arctic// and Antarctic).$
+@7.6 [Receiver] <error> Corrected error at byte #0
+@7.61 [Receiver] <sending> ACK#2
+@7.61 [Receiver] <received> DATA#3: $(around the Arctic// and Antarctic).$
+@7.61 [Receiver] <discarding> Wrong frame
+@7.61 [Receiver] <error> Corrected error at byte #0
+@7.8 [Receiver] <sending> ACK#3
+@7.41 [Sender] <duplicate> DATA#2: $predominantly seen in high-latitude regions$
+@7.6 [Sender] <received> ACK#2
+@7.6 [Sender] <modifying> (byte, bit) = (0, 3)
+@7.6 [Sender] <sending> DATA#3: $(around the Arctic// and Antarctic).$ !! Errors: Modification Duplication
+@7.61 [Sender] <duplicate> DATA#3: $(around the Arctic// and Antarctic).$
+@7.61 [Sender] <received> ACK#2
+@7.8 [Sender] <received> ACK#3
+@7.8 [Sender] <sending> DATA#4: $Auroras display dynamic patterns of brilliant lights//$ !! No Errors
+@7.81 [Sender] <received> ACK#3
+@8 [Sender] <received> ACK#4
+@8 [Sender] <sending> DATA#5: $that appear as curtains,$ !! No Errors
+@8.2 [Sender] <received> ACK#5
+@8.2 [Sender] <sending> DATA#6: $rays, spirals/$$ !! No Errors
+@8.4 [Sender] <received> ACK#6
+@8.4 [Sender] <modifying> (byte, bit) = (3, 7)
+@8.4 [Sender] <sending> DATA#7: $or dynamic flickers covering the entire sky/$$ !! Errors: Modification Loss
+@15.4 [Sender] <timeout> #7
+@15.4 [Sender] <sending> DATA#7: $or dynamic flickers covering the entire sky/$$ !! No Errors
+@15.6 [Sender] <received> ACK#7
+@22.4 [Sender] <log_aggregations> Transmission time = 8.6
+@22.4 [Sender] <log_aggregations> Total number of transmissions = 23
+@22.4 [Sender] <log_aggregations> Throughput = 0.930233
+@7.8 [Receiver] <received> DATA#4: $Auroras display dynamic patterns of brilliant lights//$
+@7.81 [Receiver] <sending> ACK#3
+@8 [Receiver] <sending> ACK#4
+@8 [Receiver] <received> DATA#5: $that appear as curtains,$
+@8.2 [Receiver] <sending> ACK#5
+@8.2 [Receiver] <received> DATA#6: $rays, spirals/$$
+@8.4 [Receiver] <sending> ACK#6
+@15.4 [Receiver] <received> DATA#7: $or dynamic flickers covering the entire sky/$$
+@15.6 [Receiver] <sending> ACK#7
+@22.4 [Receiver] <finish>

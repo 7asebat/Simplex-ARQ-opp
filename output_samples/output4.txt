@@ -1,0 +1,72 @@
+@0 [Sender] <init> Errors are handled by (Hamming Code)
+@7 [Sender] <modifying> (byte, bit) = (0, 3)
+@7 [Sender] <sending> DATA#0: $An electric car is an automobile that is$ !! Errors: Modification
+@7.2 [Sender] <received> ACK#0
+@7.2 [Sender] <sending> DATA#1: $propelled by one or more electric motors,$ !! No Errors
+@7.4 [Sender] <received> ACK#1
+@7.4 [Sender] <sending> DATA#2: $using energy stored in batteries.$ !! No Errors
+@7.6 [Sender] <received> ACK#2
+@7.6 [Sender] <sending> DATA#3: $Compared to internal combustion engine (ICE) vehicles,$ !! Errors: Duplication
+@0 [Receiver] <init> Errors are handled by (Hamming Code)
+@7 [Receiver] <received> DATA#0: $An electric car is an automobile that is$
+@7 [Receiver] <error> Corrected error at byte #0
+@7.2 [Receiver] <sending> ACK#0
+@7.2 [Receiver] <received> DATA#1: $propelled by one or more electric motors,$
+@7.4 [Receiver] <sending> ACK#1
+@7.4 [Receiver] <received> DATA#2: $using energy stored in batteries.$
+@7.6 [Receiver] <sending> ACK#2
+@7.6 [Receiver] <received> DATA#3: $Compared to internal combustion engine (ICE) vehicles,$
+@7.61 [Receiver] <received> DATA#3: $Compared to internal combustion engine (ICE) vehicles,$
+@7.61 [Receiver] <discarding> Wrong frame
+@7.8 [Receiver] <sending> ACK#3
+@7.81 [Receiver] <sending> ACK#3
+@14.8 [Receiver] <received> DATA#4: $electric cars are quieter,$
+@14.81 [Receiver] <received> DATA#4: $electric cars are quieter,$
+@14.81 [Receiver] <discarding> Wrong frame
+@15 [Receiver] <sending> ACK#4
+@15 [Receiver] <received> DATA#5: $have no exhaust emissions, and lower emissions overall.$
+@15.01 [Receiver] <sending> ACK#4
+@7.61 [Sender] <duplicate> DATA#3: $Compared to internal combustion engine (ICE) vehicles,$
+@7.8 [Sender] <received> ACK#3
+@7.8 [Sender] <delayed> DATA#4: $electric cars are quieter,$
+@7.81 [Sender] <received> ACK#3
+@14.8 [Sender] <sending> DATA#4: $electric cars are quieter,$ !! Errors: Duplication
+@14.81 [Sender] <duplicate> DATA#4: $electric cars are quieter,$
+@15 [Sender] <received> ACK#4
+@15 [Sender] <sending> DATA#5: $have no exhaust emissions, and lower emissions overall.$ !! No Errors
+@15.01 [Sender] <received> ACK#4
+@15.2 [Sender] <received> ACK#5
+@15.2 [Sender] <sending> DATA#6: $In the United States and the European Union,$ !! No Errors
+@15.4 [Sender] <received> ACK#6
+@15.4 [Sender] <modifying> (byte, bit) = (67, 7)
+@15.4 [Sender] <sending> DATA#7: $as of 2020, the total cost of ownership of recent electric vehicles$ !! Errors: Modification
+@15.6 [Sender] <received> ACK#7
+@15.6 [Sender] <sending> DATA#8: $is cheaper/$ than that of equivalent ICE cars,$ !! No Errors
+@15.8 [Sender] <received> ACK#8
+@15.8 [Sender] <sending> DATA#9: $due to lower fueling and maintenance costs/$/$.$ !! No Errors
+@15.2 [Receiver] <sending> ACK#5
+@15.2 [Receiver] <received> DATA#6: $In the United States and the European Union,$
+@15.4 [Receiver] <sending> ACK#6
+@15.4 [Receiver] <received> DATA#7: $as of 2020, the total cost of ownership of recent electric vehicles$
+@15.4 [Receiver] <error> Corrected error at byte #67
+@15.6 [Receiver] <sending> ACK#7
+@15.6 [Receiver] <received> DATA#8: $is cheaper/$ than that of equivalent ICE cars,$
+@15.8 [Receiver] <sending> ACK#8
+@15.8 [Receiver] <received> DATA#9: $due to lower fueling and maintenance costs/$/$.$
+@16 [Sender] <received> ACK#9
+@16 [Sender] <sending> DATA#10: $Charging an electric car can be done at a variety of charging stations;$ !! No Errors
+@16.2 [Sender] <received> ACK#10
+@16.2 [Sender] <modifying> (byte, bit) = (9, 3)
+@16.2 [Sender] <sending> DATA#11: $these charging stations can be installed in both houses// and public areas.$ !! Errors: Modification Loss
+@23.2 [Sender] <timeout> #11
+@23.2 [Sender] <sending> DATA#11: $these charging stations can be installed in both houses// and public areas.$ !! No Errors
+@23.4 [Sender] <received> ACK#11
+@30.2 [Sender] <log_aggregations> Transmission time = 16.4
+@30.2 [Sender] <log_aggregations> Total number of transmissions = 29
+@30.2 [Sender] <log_aggregations> Throughput = 0.731707
+@16 [Receiver] <sending> ACK#9
+@16 [Receiver] <received> DATA#10: $Charging an electric car can be done at a variety of charging stations;$
+@16.2 [Receiver] <sending> ACK#10
+@23.2 [Receiver] <received> DATA#11: $these charging stations can be installed in both houses// and public areas.$
+@23.4 [Receiver] <sending> ACK#11
+@30.2 [Receiver] <finish>

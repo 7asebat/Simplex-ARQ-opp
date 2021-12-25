@@ -1,0 +1,45 @@
+@0 [Receiver] <init> Errors are handled by (Hamming Code)
+@7 [Receiver] <received> DATA#0: $A flower, sometimes known as a bloom or blossom$
+@7 [Receiver] <error> Corrected error at byte #44
+@7.01 [Receiver] <received> DATA#0: $A flower, sometimes known as a bloom or blossom$
+@7.01 [Receiver] <discarding> Wrong frame
+@7.01 [Receiver] <error> Corrected error at byte #44
+@7.2 [Receiver] <sending> ACK#0
+@7.2 [Receiver] <received> DATA#1: $is the reproductive/$ structure found in flowering plants$
+@7.21 [Receiver] <sending> ACK#0
+@0 [Sender] <init> Errors are handled by (Hamming Code)
+@7 [Sender] <modifying> (byte, bit) = (44, 5)
+@7 [Sender] <sending> DATA#0: $A flower, sometimes known as a bloom or blowsom$ !! Errors: Modification Duplication
+@7.01 [Sender] <duplicate> DATA#0: $A flower, sometimes known as a bloom or blowsom$
+@7.2 [Sender] <received> ACK#0
+@7.2 [Sender] <sending> DATA#1: $is the reproductive/$ structure found in flowering plants$ !! No Errors
+@7.21 [Sender] <received> ACK#0
+@7.4 [Sender] <received> ACK#1
+@7.4 [Sender] <sending> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$ !! Errors: Loss
+@14.4 [Sender] <timeout> #2
+@14.4 [Sender] <sending> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$ !! No Errors
+@14.6 [Sender] <received> ACK#2
+@14.6 [Sender] <sending> DATA#3: $The biological function of a flower is to facilitate reproduction,$ !! No Errors
+@14.8 [Sender] <received> ACK#3
+@14.8 [Sender] <delayed> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$
+@21.8 [Sender] <sending> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$ !! No Errors
+@7.4 [Receiver] <sending> ACK#1
+@14.4 [Receiver] <received> DATA#2: $(plants of the division Magnoliophyta, also called// angiosperms/$).$
+@14.6 [Receiver] <sending> ACK#2
+@14.6 [Receiver] <received> DATA#3: $The biological function of a flower is to facilitate reproduction,$
+@14.8 [Receiver] <sending> ACK#3
+@21.8 [Receiver] <received> DATA#4: $usually by providing a mechanism for the union of sperm with eggs.$
+@22 [Receiver] <sending> ACK#4
+@22 [Receiver] <received> DATA#5: $Flowers may facilitate outcrossing/$$
+@22 [Sender] <received> ACK#4
+@22 [Sender] <sending> DATA#5: $Flowers may facilitate outcrossing/$$ !! No Errors
+@22.2 [Sender] <received> ACK#5
+@22.2 [Sender] <sending> DATA#6: $(fusion of sperm and eggs from different individuals in a population)$ !! No Errors
+@22.4 [Sender] <received> ACK#6
+@29.2 [Sender] <log_aggregations> Transmission time = 15.4
+@29.2 [Sender] <log_aggregations> Total number of transmissions = 17
+@29.2 [Sender] <log_aggregations> Throughput = 0.454545
+@22.2 [Receiver] <sending> ACK#5
+@22.2 [Receiver] <received> DATA#6: $(fusion of sperm and eggs from different individuals in a population)$
+@22.4 [Receiver] <sending> ACK#6
+@29.2 [Receiver] <finish>

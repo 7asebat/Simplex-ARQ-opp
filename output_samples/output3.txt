@@ -1,0 +1,35 @@
+@0 [Sender] <init> Errors are handled by (Hamming Code)
+@7 [Sender] <delayed> DATA#0: $A cherry blossom is a flower of many trees of genus/$ Prunus or Prunus subg.$
+@14 [Sender] <sending> DATA#0: $A cherry blossom is a flower of many trees of genus/$ Prunus or Prunus subg.$ !! No Errors
+@14.2 [Sender] <received> ACK#0
+@14.2 [Sender] <delayed> DATA#1: $They are also known as Japanese cherry and Sakura$
+@21.2 [Sender] <sending> DATA#1: $They are also known as Japanese cherry and Sakura$ !! Errors: Duplication
+@0 [Receiver] <init> Errors are handled by (Hamming Code)
+@14 [Receiver] <received> DATA#0: $A cherry blossom is a flower of many trees of genus/$ Prunus or Prunus subg.$
+@14.2 [Receiver] <sending> ACK#0
+@21.2 [Receiver] <received> DATA#1: $They are also known as Japanese cherry and Sakura$
+@21.21 [Receiver] <received> DATA#1: $They are also known as Japanese cherry and Sakura$
+@21.21 [Receiver] <discarding> Wrong frame
+@21.4 [Receiver] <sending> ACK#1
+@21.4 [Receiver] <received> DATA#2: $They generally refer to /$ ornamental cherry trees,$
+@21.21 [Sender] <duplicate> DATA#1: $They are also known as Japanese cherry and Sakura$
+@21.4 [Sender] <received> ACK#1
+@21.4 [Sender] <sending> DATA#2: $They generally refer to /$ ornamental cherry trees,$ !! No Errors
+@21.41 [Sender] <received> ACK#1
+@21.6 [Sender] <received> ACK#2
+@21.6 [Sender] <sending> DATA#3: $not to be confused with cherry trees that// produce fruit for eating.$ !! No Errors
+@21.8 [Sender] <received> ACK#3
+@21.8 [Sender] <modifying> (byte, bit) = (44, 5)
+@21.8 [Sender] <sending> DATA#4: $It is considered// the national flower of Jepan.$ !! Errors: Modification
+@22 [Sender] <received> ACK#4
+@28.8 [Sender] <log_aggregations> Transmission time = 15
+@28.8 [Sender] <log_aggregations> Total number of transmissions = 12
+@28.8 [Sender] <log_aggregations> Throughput = 0.333333
+@21.41 [Receiver] <sending> ACK#1
+@21.6 [Receiver] <sending> ACK#2
+@21.6 [Receiver] <received> DATA#3: $not to be confused with cherry trees that// produce fruit for eating.$
+@21.8 [Receiver] <sending> ACK#3
+@21.8 [Receiver] <received> DATA#4: $It is considered// the national flower of Japan.$
+@21.8 [Receiver] <error> Corrected error at byte #44
+@22 [Receiver] <sending> ACK#4
+@28.8 [Receiver] <finish>

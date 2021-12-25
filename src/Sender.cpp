@@ -157,13 +157,14 @@ Sender::process_event(const Event &event)
 void
 Sender::modify_random_bit(Payload &payload)
 {
+	int byte_to_flip = intuniform(0, payload.size() - 1);
 	int bit_to_flip;
 	if (use_hamming)
 		bit_to_flip = intuniform(0, Hamming::N_CODEWORD - 1);
 	else
 		bit_to_flip = intuniform(0, Hamming::N_DATA - 1);
 
-	int byte_to_flip = intuniform(0, payload.size() - 1);
+	log_message("<modifying> (byte, bit) = (%u, %u)", byte_to_flip, bit_to_flip);
 
 	payload[byte_to_flip][bit_to_flip] = !payload[byte_to_flip][bit_to_flip];
 }
